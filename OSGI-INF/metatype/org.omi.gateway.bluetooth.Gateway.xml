@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
+    <OCD id="org.omi.gateway.bluetooth.Gateway"
+        name="Gateway"
+        description="This is the default configuration for the Bluetooth Gateway">
+    
+        <AD id="iname"
+            name="iname"
+            type="String"
+            cardinality="1"
+            required="true"
+            default="hci0"
+            description="The Bluetooth interface to be used to connect to Bluetooth devices"/>
+
+        <AD id="scan_enable"
+            name="scan_enable"
+            type="Boolean"
+            cardinality="0"
+            required="true"
+            default="true"
+            description="Enable scan for Bluetooth devices"/>
+
+        <AD id="scan_time"
+            name="scan_time"
+            type="Integer"
+            cardinality="0"
+            required="true"
+            default="5"
+            min="1"
+            description="Time to scan for Bluetooth devices"/>
+
+        <AD id="period"
+            name="period"
+            type="Integer"
+            cardinality="0"
+            required="true"
+            default="10"
+            min="2"
+            description="Time between successive scans for Bluetooth devices"/>
+ 
+        <AD id="repo_url"
+            name="repo_url"
+            type="String"
+            cardinality="0"
+            required="true"
+            default="http://vorto.eclipse.org"
+            description="URL of the Vorto Repository to use to resolve device descriptions"/>
+            
+    </OCD>
+
+    <Designate pid="org.omi.gateway.bluetooth.Gateway">
+        <Object ocdref="org.omi.gateway.bluetooth.Gateway"/>
+    </Designate>
+</MetaData>

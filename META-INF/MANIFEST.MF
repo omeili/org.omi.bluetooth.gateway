@@ -13,10 +13,11 @@ Import-Package: org.eclipse.kura;version="1.3.0",
  org.slf4j;version="1.7.21",
  javax.net,
  javax.net.ssl,
- javax.naming
+ javax.naming,
+ javax.script
 Service-Component: OSGI-INF/Gateway.xml
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: target/dependency/commons-codec-1.9.jar,
+Bundle-ClassPath: commons-codec-1.9.jar,
  target/dependency/commons-io-2.2.jar,
  target/dependency/commons-jxpath-1.3.jar,
  target/dependency/commons-logging-1.2.jar,
@@ -27,10 +28,10 @@ Bundle-ClassPath: target/dependency/commons-codec-1.9.jar,
  target/dependency/junit-4.12.jar,
  target/dependency/repository-api-0.10.0-SNAPSHOT.jar,
  target/dependency/repository-java-client-0.10.0-SNAPSHOT.jar,
- target/dependency/repository-mapping-0.10.0-SNAPSHOT.jar,
  target/dependency/commons-lang3-3.6.jar,
  target/dependency/commons-text-1.1.jar,
  target/dependency/jackson-annotations-2.6.0.jar,
  target/dependency/jackson-core-2.6.3.jar,
  target/dependency/jackson-databind-2.6.3.jar,
+ target/dependency/repository-mapping-0.10.0-SNAPSHOT.jar,
  .

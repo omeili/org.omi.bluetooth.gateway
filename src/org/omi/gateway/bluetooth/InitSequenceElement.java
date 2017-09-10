@@ -30,14 +30,7 @@ public class InitSequenceElement {
 		for (Short v : value)
 		{
 			String digit = String.format("%02x", v);
-			if (result.isEmpty())
-			{
-				result = digit;
-			}
-			else
-			{
-				result = result + " " + digit;
-			}
+			result = result + digit;
 		}
 		return result;
 	}

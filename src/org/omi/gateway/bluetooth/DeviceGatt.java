@@ -1,14 +1,13 @@
 package org.omi.gateway.bluetooth;
 
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.bluetooth.BluetoothGatt;
 import org.eclipse.kura.bluetooth.BluetoothGattCharacteristic;
@@ -59,13 +58,10 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 		for (ModelProperty fbprop : infomodel.getFunctionblocks())
 		{
 			Service service = new Service();
-			s_logger.debug("Found model property (fb): " + fbprop.getName());
-
-			ModelId fbid = (ModelId) fbprop.getType();		
-			s_logger.debug("Found Model ID: " + fbid.getPrettyFormat());
-			
+			ModelId fbid = (ModelId) fbprop.getType();
 			FunctionblockModel fb = mappingSpec.getFunctionBlock(fbid);
 			s_logger.debug("### Found function block: " + fb.getDisplayName() + " of stereotypes ");
+			
 			for (Stereotype stereotype : fb.getStereotypes())
 			{
 				s_logger.debug(stereotype.getName() + ", ");
@@ -85,10 +81,6 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 				
 				Characteristic ch = new Characteristic();
 				
-				for (IPropertyAttribute attr : prop.getAttributes())
-				{
-					s_logger.debug(" --- Attr  " + attr.toString());
-				}
 				for (Stereotype stereotype : prop.getStereotypes())
 				{
 					if (stereotype.getAttributes().containsKey("uuid"))
@@ -125,14 +117,14 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 				}
 				for (Stereotype stereotype : prop.getStereotypes())
 				{
-					if (/* stereotype.getName().equals("Characteristic") && */stereotype.getAttributes().containsKey("uuid"))
+					if (stereotype.getAttributes().containsKey("uuid"))
 					{
 						ch.setUuid(UUID.fromString(stereotype.getAttributes().get("uuid").toString()));
 						service.addCharacteristics(ch);
 					}
 					for (String key : stereotype.getAttributes().keySet())
 					{
-						s_logger.debug(" --- Map " + key + " to " + stereotype.getAttributes().get(key));
+						s_logger.debug(" --- [" + stereotype.getName() + "] " + key + " to " + stereotype.getAttributes().get(key));
 					}
 				}
 			}	
@@ -152,7 +144,7 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 					Characteristic ch = entry.getValue().getCharacteristics().get(gattCh.getUuid());
 					ch.setHandle(gattCh.getValueHandle());
 					this.device.addCharacteristic(ch);
-					s_logger.info("Adding characteristic " + ch.getUuid() + " and handle " + ch.getHandle());
+					s_logger.debug("Adding characteristic " + ch.getUuid() + " and handle " + ch.getHandle());
 				}
 			}
 		}
@@ -163,38 +155,27 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 	protected void poll()
 	{
 		try {
-			s_logger.info("Polling " + this.device.getCharacteristics().size() + " values from device");
-			
 			for (Entry<String, Characteristic> entry : this.device.getCharacteristics().entrySet())
 			{
 				String handle = entry.getValue().getHandle();
 				Characteristic ch = entry.getValue();
-			
-				s_logger.info("Reading from handle: " + handle);
 				
 				String value = "";
 				try {
 					value = this.gatt.readCharacteristicValue(handle);
 					ch.setData(value);
-					s_logger.info("Set " + ch.getData().length + " bytes of data to " + ch.getUuid());
+					s_logger.debug("Set " + ch.getData().length + " bytes of data to " + ch.getUuid());
 				} catch (Exception e) {
 					s_logger.error(e.getMessage(), e);
 				}
 			}
 
-			s_logger.info("Mapping BLE data to Vorto Model 1");
 			DataMapperBuilder builder = IDataMapper.newBuilder();
-			
-			s_logger.info("Mapping BLE data to Vorto Model 2");
 			builder.withSpecification(this.mappingSpec);
-			
-			s_logger.info("Mapping BLE data to Vorto Model 3");
 			DittoMapper mapper = builder.buildDittoMapper();
+			DittoOutput mappedDittoOutput = mapper.map(DataInput.newInstance().fromObject(this.device));		
+			s_logger.info("Payload mapper output: " + mappedDittoOutput.toJson());
 			
-			s_logger.info("Mapping BLE data to Vorto Model 4");
-			DittoOutput mappedDittoOutput = mapper.map(DataInput.newInstance().fromObject(this.device));
-		
-			s_logger.info(mappedDittoOutput.toJson());
 		} catch (Exception e)
 		{
 			s_logger.error(e.getMessage(), e);

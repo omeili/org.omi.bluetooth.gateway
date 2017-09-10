@@ -104,10 +104,7 @@ public class DeviceGattBuilder {
 		}
 		
 		MappingSpecificationBuilder builder = IMappingSpecification.newBuilder();
-		builder = builder.modelId(model.getId().getPrettyFormat());
-		builder = builder.key("blegatt");
-		IMappingSpecification spec = builder.build();
-		return spec;
+		return builder.modelId(model.getId().getPrettyFormat()).key("blegatt").build();
 	}
 
 }

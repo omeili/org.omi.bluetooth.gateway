@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.bluetooth.BluetoothGatt;
+import org.eclipse.kura.cloud.CloudClient;
 import org.eclipse.vorto.repository.api.IModelResolver;
 import org.eclipse.vorto.repository.api.ModelInfo;
 import org.eclipse.vorto.repository.api.resolver.ResolveQuery;
@@ -22,7 +23,7 @@ public class DeviceGattBuilder {
 	
 	private static Map<String, IMappingSpecification> deviceModels;
 	
-	static DeviceGatt fromGatt(BluetoothGatt gatt, URI repo_url)
+	static DeviceGatt fromGatt(BluetoothGatt gatt, URI repo_url, CloudClient cloudClient)
 	{
 		DeviceGatt deviceGatt = null;
 		
@@ -49,7 +50,7 @@ public class DeviceGattBuilder {
 					}
 					else
 					{
-						deviceGatt = new DeviceGatt(gatt, mappingSpec);
+						deviceGatt = new DeviceGatt(gatt, mappingSpec, cloudClient);
 					}
 				}
 			}

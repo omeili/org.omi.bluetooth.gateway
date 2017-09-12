@@ -12,6 +12,7 @@ import org.eclipse.kura.KuraException;
 import org.eclipse.kura.bluetooth.BluetoothGatt;
 import org.eclipse.kura.bluetooth.BluetoothGattCharacteristic;
 import org.eclipse.kura.bluetooth.BluetoothLeNotificationListener;
+import org.eclipse.kura.cloud.CloudClient;
 import org.eclipse.vorto.repository.api.ModelId;
 import org.eclipse.vorto.repository.api.content.BooleanAttributeProperty;
 import org.eclipse.vorto.repository.api.content.BooleanAttributePropertyType;
@@ -24,6 +25,7 @@ import org.eclipse.vorto.service.mapping.DataInput;
 import org.eclipse.vorto.service.mapping.DataMapperBuilder;
 import org.eclipse.vorto.service.mapping.IDataMapper;
 import org.eclipse.vorto.service.mapping.IMappingSpecification;
+import org.eclipse.vorto.service.mapping.MappingContext;
 import org.eclipse.vorto.service.mapping.ditto.DittoMapper;
 import org.eclipse.vorto.service.mapping.ditto.DittoOutput;
 import org.slf4j.Logger;
@@ -36,15 +38,17 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 	private Device device;
 	private IMappingSpecification mappingSpec;
 	private BluetoothGatt gatt;
+	private CloudClient cloudClient;
 	private ScheduledExecutorService pollThread;
 	private ScheduledFuture<?> pollThreadHandle;
 
 	
-	public DeviceGatt(BluetoothGatt gatt, IMappingSpecification mappingSpec)
+	public DeviceGatt(BluetoothGatt gatt, IMappingSpecification mappingSpec, CloudClient cloudClient)
 	{
 		this.gatt = gatt;
 		this.mappingSpec = mappingSpec;
 		createDeviceModel(mappingSpec);
+		this.cloudClient = cloudClient; 
 		
 		this.pollThread = Executors.newScheduledThreadPool(1); 
 	}
@@ -173,8 +177,10 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 			DataMapperBuilder builder = IDataMapper.newBuilder();
 			builder.withSpecification(this.mappingSpec);
 			DittoMapper mapper = builder.buildDittoMapper();
-			DittoOutput mappedDittoOutput = mapper.map(DataInput.newInstance().fromObject(this.device));		
+			DittoOutput mappedDittoOutput = mapper.map(DataInput.newInstance().fromObject(this.device), MappingContext.empty());		
 			s_logger.info("Payload mapper output: " + mappedDittoOutput.toJson());
+			
+			cloudClient.publish("", mappedDittoOutput.toJson().getBytes(), 0, false, 5);
 			
 		} catch (Exception e)
 		{

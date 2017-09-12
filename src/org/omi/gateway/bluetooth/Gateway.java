@@ -198,7 +198,7 @@ public class Gateway implements ConfigurableComponent, BluetoothLeScanListener {
 					BluetoothGatt gatt = device.getBluetoothGatt();
 					s_logger.info("Connecting to device with address " +  device.getAdress() + " and name " + device.getName());
 
-					DeviceGatt deviceGatt = DeviceGattBuilder.fromGatt(gatt, new URI(configuration.repo_url));
+					DeviceGatt deviceGatt = DeviceGattBuilder.fromGatt(gatt, new URI(configuration.repo_url), this.cloudService.newCloudClient("BLE-" + device.getAdress()));
 					bluetoothDevices.put(device.getAdress(), deviceGatt);
 					
 					deviceGatt.startPolling();

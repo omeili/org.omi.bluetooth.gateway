@@ -12,7 +12,7 @@ import org.eclipse.kura.KuraException;
 import org.eclipse.kura.bluetooth.BluetoothGatt;
 import org.eclipse.kura.bluetooth.BluetoothGattCharacteristic;
 import org.eclipse.kura.bluetooth.BluetoothLeNotificationListener;
-import org.eclipse.kura.cloud.CloudClient;
+import org.eclipse.kura.data.DataService;
 import org.eclipse.vorto.repository.api.ModelId;
 import org.eclipse.vorto.repository.api.content.BooleanAttributeProperty;
 import org.eclipse.vorto.repository.api.content.BooleanAttributePropertyType;
@@ -38,17 +38,17 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 	private Device device;
 	private IMappingSpecification mappingSpec;
 	private BluetoothGatt gatt;
-	private CloudClient cloudClient;
+	private DataService dataService;
 	private ScheduledExecutorService pollThread;
 	private ScheduledFuture<?> pollThreadHandle;
 
 	
-	public DeviceGatt(BluetoothGatt gatt, IMappingSpecification mappingSpec, CloudClient cloudClient)
+	public DeviceGatt(BluetoothGatt gatt, IMappingSpecification mappingSpec, DataService dataService)
 	{
 		this.gatt = gatt;
 		this.mappingSpec = mappingSpec;
 		createDeviceModel(mappingSpec);
-		this.cloudClient = cloudClient; 
+		this.dataService = dataService; 
 		
 		this.pollThread = Executors.newScheduledThreadPool(1); 
 	}
@@ -180,7 +180,7 @@ public class DeviceGatt implements BluetoothLeNotificationListener {
 			DittoOutput mappedDittoOutput = mapper.map(DataInput.newInstance().fromObject(this.device), MappingContext.empty());		
 			s_logger.info("Payload mapper output: " + mappedDittoOutput.toJson());
 			
-			cloudClient.publish("", mappedDittoOutput.toJson().getBytes(), 0, false, 5);
+			dataService.publish("telemetry/#account-name/#client-id", mappedDittoOutput.toJson().getBytes(), 0, false, 5);
 			
 		} catch (Exception e)
 		{

@@ -17,6 +17,7 @@ import org.eclipse.kura.bluetooth.BluetoothLeScanListener;
 import org.eclipse.kura.bluetooth.BluetoothService;
 import org.eclipse.kura.cloud.CloudService;
 import org.eclipse.kura.configuration.ConfigurableComponent;
+import org.eclipse.kura.data.DataService;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentException;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class Gateway implements ConfigurableComponent, BluetoothLeScanListener {
 	private ScheduledFuture<?> handle;
 	private long startTime;
 	
-	private CloudService cloudService;
+	private DataService dataService;
 	
 	public void setBluetoothService(BluetoothService bluetoothService) {
 		this.bluetoothService = bluetoothService;
@@ -47,12 +48,12 @@ public class Gateway implements ConfigurableComponent, BluetoothLeScanListener {
 		this.bluetoothService = null;
 	}
 	
-	public void setCloudService(CloudService cloudService) {
-		this.cloudService = cloudService;
+	public void setDataService(DataService dataService) {
+		this.dataService = dataService;
 	}
 	
-	public void unsetCloudService(CloudService cloudService) {
-		this.cloudService = null;
+	public void unsetDataService(DataService dataService) {
+		this.dataService = null;
 	}
 	
     protected void activate(ComponentContext componentContext, Map<String, Object> properties) {
@@ -198,7 +199,7 @@ public class Gateway implements ConfigurableComponent, BluetoothLeScanListener {
 					BluetoothGatt gatt = device.getBluetoothGatt();
 					s_logger.info("Connecting to device with address " +  device.getAdress() + " and name " + device.getName());
 
-					DeviceGatt deviceGatt = DeviceGattBuilder.fromGatt(gatt, new URI(configuration.repo_url), this.cloudService.newCloudClient("BLE-" + device.getAdress()));
+					DeviceGatt deviceGatt = DeviceGattBuilder.fromGatt(gatt, new URI(configuration.repo_url), this.dataService);
 					bluetoothDevices.put(device.getAdress(), deviceGatt);
 					
 					deviceGatt.startPolling();
